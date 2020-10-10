@@ -122,6 +122,24 @@ export OUR_INTERFACE=${templine[0]}
 
 echo "our interface:$OUR_INTERFACE:"
 
+# The initial idea here was to find the interface that has the public IP
+# address. This will not work in a NAT environment, i.e.
+# where the VPS is behind a NAT router and does not have the
+# public address directly.
+
+# Fix : If we do not get an interface this way we just use the first 
+# interface with the default route - we check for a minimum length of 3
+# checking for zero length like this 
+# [ -z "$OUR_WAN_INTERFACE" ] && export OUR_WAN_INTERFACE = ip route | grep default | sed s/.*dev\ //g | sed s/\ .*//g
+# does not work because there is a line feed
+# in the variable
+
+if [ ${#OUR_INTERFACE} -le 2 ]; then
+    echo "WAN Interface not found - was:${OUR_INTERFACE}:"
+    export OUR_INTERFACE=`ip route | grep default | sed s/.*dev\ //g | sed s/\ .*//g`
+    echo "WAN Interface is now: $OUR_INTERFACE"
+fi
+
 # At this point, our VPN Server yould just be a router
 # but we want it to mask our IP address.
 # Also the ISP would not route our private 192.168.88.x address
