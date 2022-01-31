@@ -69,13 +69,13 @@ wg pubkey < /etc/wireguard/privatekey > /etc/wireguard/publickey
 # ###############################
 
 # --- remove the comment from the forward flag in sysctl.conf
-#sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 
 # enable ip4 forwarding with sysctl
 sysctl -w net.ipv4.ip_forward=1
 
 # --- print out the content of sysctl.conf
-sysctl -p
+# sysctl -p
 
 
 # ###########################################
