@@ -8,7 +8,7 @@
 # the place for digital DIY
 #
 # https://www.youtube.com/channel/UCG5Ph9Mm6UEQLJJ-kGIC2AQ
-#
+# with addition by @actpohomoc
 # ###########################################
 # ###########################################
 
@@ -48,17 +48,22 @@ export SERVER_LISTENING_PORT=${templine[1]// /}
 # curl ipinfo.io/ip
 # it presents a risk to curl as root so we sudo as nobody ....
 
-export OUR_OWN_IP=`sudo -u nobody curl -s ipinfo.io/ip`
+export OUR_OWN_IP='curl -s ipinfo.io/ip'
 
-# generate the config output
+##################################################################
+#                 generate the config output
+##################################################################
 
 export new_config_file_name=/etc/wireguard/$config_file_name
 umask 077
 echo "# ######################################################" > $new_config_file_name
 echo "# ########### COPY PASTE BELOW #########################" >> $new_config_file_name
 echo "# ######################################################" >> $new_config_file_name
-echo -e "[Interface]\nPrivateKey = $NEW_PRIVATE_KEY\nAddress=$WGCLIENTADDRESS\nDNS=8.8.8.8\n" >>$new_config_file_name
-echo -e "[Peer]\nPublicKey = $SERVER_PUBLIC_KEY\nAllowedIPs=0.0.0.0/0\nEndPoint=$OUR_OWN_IP:"${SERVER_LISTENING_PORT}"\n" >> $new_config_file_name
+echo -e "### Client = $WGCLIENTNAME with IP = $WGCLIENTADDRESS" >> $new_config_file_name
+echo -e "### PublicKey = $NEW_PUBLIC_KEY\n" >> $new_config_file_name
+echo -e "[Interface]\nPrivateKey = $NEW_PRIVATE_KEY\nAddress = $WGCLIENTADDRESS\nDNS = 1.1.1.1\n" >> $new_config_file_name
+echo -e "[Peer]\nPublicKey = $SERVER_PUBLIC_KEY\nAllowedIPs = 0.0.0.0/1, 192.168.88.0/24, 192.168.10.0/24, 128.0.0.0/1" >> $new_config_file_name
+echo -e "EndPoint = $($OUR_OWN_IP):"${SERVER_LISTENING_PORT}"\nPersistentKeepalive = 20\n" >> $new_config_file_name
 echo "# ######################################################" >> $new_config_file_name
 echo "# ########### COPY PASTE ABOVE #########################" >> $new_config_file_name
 echo "# ######################################################" >> $new_config_file_name
