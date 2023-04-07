@@ -4,7 +4,7 @@ Wireguard Installation Scripts
 these scripts can be used to install wireguard on a virtual private server (VPS), i.e.
 a server that you have running in the cloud.
 
-Alternatively you can use it to install wireguard VPN software on any Ubuntu 18 Server.
+Alternatively you can use it to install wireguard VPN software on a Ubuntu / Debian Server (tested with **Ubuntu 18** and **Debian 11**).
 
 There is an installation script called wireguard.sh that does all the necessary things for you in order to install wireguard on the virtual server.
 
@@ -14,4 +14,4 @@ I have designed the scripts in a way that you can either transfer them over to t
 
 Find all details on [my youtube channel](https://www.youtube.com/channel/UCG5Ph9Mm6UEQLJJ-kGIC2AQ)
 
-If you are having issues with these scripts (they don't work as expected etc.) then you may join my discord server and chat life with me - please see [THIS VIDEO](https://youtu.be/VouCBt1NTjw) for details
+If you are having issues with these scripts (they don't work as expected etc.) then please reach out to me on [my Discord server](https://discord.gg/cshnaHkqYy)

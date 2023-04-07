@@ -34,7 +34,10 @@ fi
 
 apt update
 apt install -y software-properties-common curl qrencode
-add-apt-repository -y ppa:wireguard/wireguard
+
+# this will succeed on Ubuntu 18 but fail on Debian 11
+# let's jsut
+add-apt-repository -y ppa:wireguard/wireguard >/dev/null 2>&1
 
 # ###############################
 # install wireguard
@@ -77,6 +80,11 @@ sysctl -w net.ipv4.ip_forward=1
 # --- print out the content of sysctl.conf
 sysctl -p
 
+# let's make this permanent
+sed -i s/^.*net.ipv4.ip_forward.*$/net.ipv4.ip_forward=1/ /etc/sysctl.conf
+if ! grep ^net.ipv4.ip_forward=1$ /etc/sysctl.conf ; then 
+  echo "net.ipv4.ip_forward=1" >>/etc/sysctl.conf
+fi
 
 # ###########################################
 # define the wg0 interface
