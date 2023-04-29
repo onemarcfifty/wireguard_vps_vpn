@@ -8,7 +8,7 @@
 # the place for digital DIY
 #
 # https://www.youtube.com/channel/UCG5Ph9Mm6UEQLJJ-kGIC2AQ
-#
+# with addition by @actpohomoc
 # ###########################################
 # ###########################################
 
@@ -20,8 +20,9 @@
 # first parameter is the clientname
 # second parameter is the IP address it gets on the VPN
 
-[[ ! -z "$1" ]] && WGCLIENTNAME=$1 || WGCLIENTNAME=newclient
+[[ ! -z "$1" ]] && WGCLIENTNAME=$1 || WGCLIENTNAME=client1
 [[ ! -z "$2" ]] && WGCLIENTADDRESS=$2 || WGCLIENTADDRESS="192.168.88.2/32"
+[[ ! -z "$3" ]] && config_file_name=$3 || config_file_name=$WGCLIENTNAME".conf"
 
 echo -e "\ngenerating peer $WGCLIENTNAME with IP $WGCLIENTADDRESS\n"
 
@@ -37,7 +38,7 @@ readarray -d : -t templine <<< $(wg | grep "public key")
 export SERVER_PUBLIC_KEY=${templine[1]};
 readarray -d : -t templine <<< $(wg | grep "listening port")
 #SERVER_LISTENING_PORT=${templine[1]};
-# we need to remove the leading space 
+# we need to remove the leading space
 export SERVER_LISTENING_PORT=${templine[1]// /}
 
 # guess our own internet address
@@ -47,17 +48,22 @@ export SERVER_LISTENING_PORT=${templine[1]// /}
 # curl ipinfo.io/ip
 # it presents a risk to curl as root so we sudo as nobody ....
 
-export OUR_OWN_IP=`sudo -u nobody curl -s ipinfo.io/ip`
+export OUR_OWN_IP='curl -s ipinfo.io/ip'
 
-# generate the config output
+##################################################################
+#                 generate the config output
+##################################################################
 
-export new_config_file_name=/etc/wireguard/newpeer.conf
+export new_config_file_name=/etc/wireguard/$config_file_name
 umask 077
 echo "# ######################################################" > $new_config_file_name
 echo "# ########### COPY PASTE BELOW #########################" >> $new_config_file_name
 echo "# ######################################################" >> $new_config_file_name
-echo -e "[Interface]\nPrivateKey = $NEW_PRIVATE_KEY\nAddress=$WGCLIENTADDRESS\nDNS=8.8.8.8\n" >>$new_config_file_name
-echo -e "[Peer]\nPublicKey = $SERVER_PUBLIC_KEY\nAllowedIPs=0.0.0.0/0\nEndPoint=$OUR_OWN_IP:"${SERVER_LISTENING_PORT}"\n" >> $new_config_file_name
+echo -e "### Client = $WGCLIENTNAME with IP = $WGCLIENTADDRESS" >> $new_config_file_name
+echo -e "### PublicKey = $NEW_PUBLIC_KEY\n" >> $new_config_file_name
+echo -e "[Interface]\nPrivateKey = $NEW_PRIVATE_KEY\nAddress = $WGCLIENTADDRESS\nDNS = 1.1.1.1\n" >> $new_config_file_name
+echo -e "[Peer]\nPublicKey = $SERVER_PUBLIC_KEY\nAllowedIPs = 0.0.0.0/1, 192.168.88.0/24, 192.168.10.0/24, 128.0.0.0/1" >> $new_config_file_name
+echo -e "EndPoint = $($OUR_OWN_IP):"${SERVER_LISTENING_PORT}"\nPersistentKeepalive = 20\n" >> $new_config_file_name
 echo "# ######################################################" >> $new_config_file_name
 echo "# ########### COPY PASTE ABOVE #########################" >> $new_config_file_name
 echo "# ######################################################" >> $new_config_file_name
@@ -68,7 +74,7 @@ echo "# ######################################################" >> $new_config_f
 
 wg set wg0 peer $NEW_PUBLIC_KEY allowed-ips $WGCLIENTADDRESS
 
-# we need to down and up the interface in order to 
+# we need to down and up the interface in order to
 # make changes persistent
 
 wg-quick down wg0 && wg-quick up wg0
